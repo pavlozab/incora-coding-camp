@@ -49,9 +49,3 @@ $ npm start
 ```shell
 $ npm run start:dev
 ```
-
-> production mode
-
-```shell
-$ npm run start:prod
-```

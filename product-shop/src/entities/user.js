@@ -7,12 +7,11 @@ export class User {
     this.name = Validation.validateString(name);
     this.balance = Validation.validatePositiveNumber(balance);
 
-    this.orders = new Array();
+    this.orders = [];
     this.cart = new Cart();
   }
 
   showOrderHistory(sortType = 'asc', sortBy = 'date') {
-    // check sortBy and sortType
     const sortFunc =
       sortType === 'desc'
         ? (a, b) => (a[sortBy] > b[sortBy] ? -1 : 1)
@@ -31,7 +30,6 @@ export class User {
   }
 
   checkBalance(value) {
-    // throw exception 🤷
     return value < this.balance;
   }
 
@@ -39,9 +37,7 @@ export class User {
     if (this.checkBalance(value)) {
       this.balance -= value;
     } else {
-      throw new Error(
-        `Balance is too low. Your balance: ${this.balance} and your total price: ${value}`, // FIXME: custom exception
-      );
+      throw new RangeError(`Your balance (${this.balance}) is too low.`);
     }
   }
 }

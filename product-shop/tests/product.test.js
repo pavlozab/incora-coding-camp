@@ -1,4 +1,4 @@
-import { Product } from './../src/entities/product.js';
+import { Product } from '../src/entities/product.js';
 
 const product = new Product('Fresh Avocados', 6.5, 4);
 

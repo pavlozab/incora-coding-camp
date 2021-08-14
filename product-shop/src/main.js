@@ -3,7 +3,7 @@ import { Product } from './entities/product.js';
 import { Admin } from './entities/admin.js';
 import { Order } from './entities/order.js';
 import { Validation } from './validation.js';
-//  import { NotFoundError } from './customErrors.js';
+import { CartIsEmptyError } from './customErrors.js';
 
 let products = [
   new Product('Fresh Avocados', 6.5, 4),
@@ -52,14 +52,14 @@ function valid() {
   user.getCart().checkout(user, products);
   showAll(user);
 
-  console.log('\n\n!---------- Order history (asc, date) 🚚 ----------!');
-  console.log(user.showOrderHistory('asc', 'date'));
-
-  console.log('\n!---------- Order history (asc, totalPrice) 🚚 ----------!');
-  console.log(user.showOrderHistory('asc', 'totalPrice'));
-
-  console.log('\n!---------- Order history (desc, totalPrice) 🚚 ----------!');
-  console.log(user.showOrderHistory('desc', 'totalPrice'));
+  for (const by of ['date', 'totalPrice']) {
+    for (const type of ['asc', 'desc']) {
+      console.log(
+        `\n!---------- Order history (${type}, ${by}) 🚚 ----------!`,
+      );
+      console.log(user.showOrderHistory(type, by));
+    }
+  }
 }
 
 function addToCart(prod, user) {
@@ -73,23 +73,26 @@ function addToCart(prod, user) {
 function showAll(user) {
   console.log('\n!--------- Products 🌽 ---------!');
   console.log(products);
-
   console.log('\n!--------- Cart 🛒 ---------!');
   console.log(user.getCart());
-
   console.log('\n!--------- User 🙋 ---------!');
   console.log(user);
 }
 
 function invalid() {
-  console.log('\n!--------- String validation 📝 ---------!\n');
+  console.log(
+    `
+!---------       Errors ⛔️      ---------!
+!--------- String validation 📝 ---------!
+`,
+  );
   try {
     new User('Abc12 23', 78);
   } catch (error) {
     console.error(error.message);
   }
 
-  console.log('\n!--------- Posistive number validation 🔢 ---------!\n');
+  console.log('\n!--------- Positive number validation 🔢 ---------!\n');
   try {
     new User('User', -78);
   } catch (error) {
@@ -110,14 +113,13 @@ function invalid() {
     console.error(error.message);
   }
 
-  console.log('\n!--------- user balance 🛒 ---------!\n');
+  console.log('\n!--------- User balance 🛒 ---------!\n');
   try {
     const user = new User('test', 2);
     user.getCart().addProduct(products[0]);
     user.getCart().checkout(user, products);
   } catch (error) {
-    if (typeof error !== typeof Error) {
-      // FIXME: Error type
+    if (error instanceof RangeError) {
       console.error(error.message);
     }
   }
@@ -127,8 +129,7 @@ function invalid() {
     const user = new User('test', 100);
     user.getCart().checkout(user, products);
   } catch (error) {
-    if (typeof error !== typeof Error) {
-      // FIXME: Error type
+    if (error instanceof CartIsEmptyError) {
       console.error(error.message);
     }
   }

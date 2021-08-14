@@ -1,8 +1,8 @@
-import { NotFoundError } from './../customErrors.js';
+import {CartIsEmptyError, NotFoundError} from './../customErrors.js';
 
 export class Cart {
   constructor() {
-    this.products = new Array();
+    this.products = [];
   }
 
   addProduct(product) {
@@ -14,31 +14,31 @@ export class Cart {
       product => product.title === productName,
     );
 
-    if (productIndex !== -1) {
-      this.products.splice(productIndex, 1);
-    } else {
+    if (productIndex === -1) {
       throw new NotFoundError(`Product '${productName}' has not been found`);
+    } else {
+      this.products.splice(productIndex, 1);
     }
   }
 
   withdraw() {
-    this.products.length = 0; // FIXME: check better solution
+    this.products.length = 0;
   }
 
   checkout(user, allProducts) {
-    // step0 : cart is empty
+    // step 0: check cart
     if (!this.products.length) {
-      throw new Error('Custom Error. cart is empty'); // FIXME: custom exception
+      throw new CartIsEmptyError('Cart is empty');
     }
 
     const totalPrice = this.getTotalPrice();
 
-    // step1 : check user balance
+    // step 1: check user balance
     if (!user.checkBalance(totalPrice)) {
-      throw new Error('User balance is too low'); // FIXME: custom exception
+      throw new RangeError('User balance is too low');
     }
 
-    // step2 : check products quantity if not threw custom exception and stop else change original product quantity
+    // step 2: check product quantity
     for (let product of this.products) {
       const indexOfProduct = allProducts.findIndex(
         prod => prod.title === product.title,
@@ -53,29 +53,28 @@ export class Cart {
       let currentProduct = allProducts[indexOfProduct];
 
       if (currentProduct.amount < product.amount) {
-        throw new Error('Product out of stock'); // FIXME: custom exception
+        throw new RangeError('Out of stock');
       }
 
       currentProduct.substractAmount(product.amount);
     }
 
-    // step3 : edit user balance
+    // step 3: update user balance
     user.updateBalance(totalPrice);
 
-    // step4 : addOrder
+    // step 4: addOrder
     user.addOrder([...this.products], totalPrice);
 
-    // step5 : withdraw
+    // step 5: withdraw
     this.withdraw();
   }
 
   getTotalPrice() {
-    const totalPrice = this.products.reduce(
-      (accumulator, curentProduct) =>
-        accumulator + curentProduct.getTotalPrice(),
-      0,
+    return this.products.reduce(
+        (accumulator, curentProduct) =>
+            accumulator + curentProduct.getTotalPrice(),
+        0,
     );
-
-    return totalPrice;
   }
+
 }

@@ -3,6 +3,7 @@ export class Validation {
     if (value * 1 <= 0) {
       throw new RangeError(`Value( ${value} ) must be a positive number`);
     }
+
     return value;
   }
 
@@ -24,13 +25,15 @@ export class Validation {
     return value;
   }
 
-  static intInRange(val, min, max) {
-    val *= 1; // val * 1
-    if (val !== Math.round(val) || min > val || val > max) {
+  static intInRange(value, min, max) {
+    value *= 1;
+
+    if (value !== Math.round(value) || min > value || value > max) {
       throw new RangeError(
-        `Value(${val}) must be an integer in range [${min}, ${max}]`,
+        `Value(${value}) must be an integer in range [${min}, ${max}]`,
       );
     }
-    return val;
+
+    return value;
   }
 }

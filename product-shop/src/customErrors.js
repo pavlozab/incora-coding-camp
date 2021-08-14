@@ -4,3 +4,10 @@ export class NotFoundError extends Error {
     this.name = 'NotFoundError';
   }
 }
+
+export class CartIsEmptyError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'CartIsEmptyError';
+  }
+}

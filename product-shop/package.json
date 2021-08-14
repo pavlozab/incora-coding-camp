@@ -1,13 +1,12 @@
 {
   "name": "product-shop",
   "version": "1.0.0",
-  "description": "Test product-shop",
+  "description": "incora coding camp test task",
   "main": "./src/main.js",
   "scripts": {
     "test": "jest",
     "start": "node ./src/main.js",
-    "start:dev": "nodemon ./src/main.js",
-    "start:prod": "node ./src/main.js"
+    "start:dev": "nodemon ./src/main.js"
   },
   "author": "Pavlo Zabavskyi",
   "license": "ISC",

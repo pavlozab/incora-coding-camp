@@ -1,7 +1,7 @@
-import { Cart } from './../src/entities/cart.js';
-import { Product } from './../src/entities/product.js';
-import { User } from './../src/entities/user.js';
-import { NotFoundError } from './../src/customErrors.js';
+import { Cart } from '../src/entities/cart.js';
+import { Product } from '../src/entities/product.js';
+import { User } from '../src/entities/user.js';
+import { NotFoundError, CartIsEmptyError } from '../src/customErrors.js';
 
 const products = [
   new Product('Fresh Avocados', 6.5, 4),
@@ -9,12 +9,15 @@ const products = [
   new Product('Baby Carrots', 3, 3),
 ];
 
+const defUser = new User('test', 100);
+const defCart = defUser.getCart();
+
 function generateCart(cart, prod) {
   prod.forEach(product => cart.addProduct(product));
   return cart;
 }
 
-test('test addProduct. Returns created product', () => {
+test('test addProduct (returns created product)', () => {
   const cart = new Cart();
   const product = products[0];
 
@@ -23,7 +26,7 @@ test('test addProduct. Returns created product', () => {
   expect(cart.products).toEqual([product]);
 });
 
-test('test removeProduct (valid name)', () => {
+test('test removeProduct (successful)', () => {
   const cart = new Cart();
   generateCart(cart, products);
 
@@ -37,7 +40,7 @@ test('test removeProduct (valid name)', () => {
   ]);
 });
 
-test('test removeProduct (invalid name)', () => {
+test('test removeProduct (throw NotFoundError)', () => {
   const cart = new Cart();
   generateCart(cart, products);
 
@@ -48,7 +51,7 @@ test('test removeProduct (invalid name)', () => {
   }).toThrow(NotFoundError);
 });
 
-test('test withdraw', () => {
+test('test withdraw (successful)', () => {
   const cart = new Cart();
   generateCart(cart, products);
 
@@ -57,45 +60,44 @@ test('test withdraw', () => {
   expect(cart.products).toEqual([]);
 });
 
-test('test checkout (empty cart)', () => {
-  const user = new User('test', 100);
+test('test checkout (cart is empty)', () => {
   expect(() => {
-    user.getCart().checkout(user, products);
-  }).toThrow(Error); // FIXME:
+    defUser.getCart().checkout(defUser, products);
+  }).toThrow(CartIsEmptyError);
 });
 
-test('test checkout (balance is too low)', () => {
+test('test checkout (user balance is too low)', () => {
   const user = new User('test', 4);
+  const cart = user.getCart();
 
-  user.getCart().addProduct(new Product('Fresh Avocados', 6.5, 1));
+  cart.addProduct(new Product('Fresh Avocados', 6.5, 1));
 
   expect(() => {
-    user.getCart().checkout(user, products);
-  }).toThrow(Error); // FIXME:
+    cart.checkout(user, products);
+  }).toThrow(RangeError);
 });
 
 test('test checkout (product has not been found)', () => {
-  const user = new User('test', 100);
-
-  user.getCart().addProduct(new Product('Avocado', 6.5, 1));
+  defCart.addProduct(new Product('Avocado', 6.5, 1));
 
   expect(() => {
-    user.getCart().checkout(user, products);
-  }).toThrow(Error); // FIXME:
+    defCart.checkout(defUser, products);
+  }).toThrow(NotFoundError);
+
+  defCart.withdraw();
 });
 
 test('test checkout (product quantity)', () => {
-  const user = new User('test', 100);
-
-  user.getCart().addProduct(new Product('Baby Carrots', 3, 12));
+  defCart.addProduct(new Product('Fresh Avocados', 3, 12));
 
   expect(() => {
-    user.getCart().checkout(user, products);
-  }).toThrow(Error); // FIXME:
+    defCart.checkout(defUser, products);
+  }).toThrow(RangeError);
 });
 
 test('test checkout (successful)', () => {
   const user = new User('test', 999);
+  const cart = user.getCart();
 
   const productsForOrder = [
     new Product('Fresh Avocados', 6.5, 1),
@@ -108,12 +110,12 @@ test('test checkout (successful)', () => {
     new Product('Baby Carrots', 3, 1),
   ];
 
-  user.getCart().addProduct(productsForOrder[0]);
-  user.getCart().addProduct(productsForOrder[1]);
+  cart.addProduct(productsForOrder[0]);
+  cart.addProduct(productsForOrder[1]);
 
-  user.getCart().checkout(user, products);
+  cart.checkout(user, products);
 
-  expect(user.getCart().products).toEqual([]);
+  expect(cart.products).toEqual([]);
   expect(user.balance).toBe(986.5);
   expect(products).toEqual(productsAfter);
   expect(user.orders[0].products).toEqual(productsForOrder);

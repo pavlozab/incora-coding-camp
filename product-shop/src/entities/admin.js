@@ -7,7 +7,6 @@ export class Admin extends User {
   }
 
   createProduct(title, price, amount) {
-    var product = new Product(title, price, amount);
-    return product;
+    return new Product(title, price, amount);
   }
 }
