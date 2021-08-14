@@ -1,0 +1,29 @@
+{
+  "name": "product-shop",
+  "version": "1.0.0",
+  "description": "incora coding camp test task",
+  "main": "./src/main.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node ./src/main.js",
+    "start:dev": "nodemon ./src/main.js"
+  },
+  "author": "Pavlo Zabavskyi",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/preset-env": "^7.15.0",
+    "babel-jest": "^27.0.6",
+    "jest": "^27.0.6",
+    "nodemon": "^2.0.12",
+    "prettier": "^2.3.2"
+  },
+  "type": "module",
+  "jest": {
+    "transform": {
+      "^.+\\.[t|j]sx?$": "babel-jest"
+    }
+  },
+  "engines": {
+    "node": "^14.0.0"
+  }
+}
