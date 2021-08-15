@@ -32,20 +32,15 @@ $ npm install
 
 ### How to run
 
-> tests
+>
 
 ```shell
+# unit tests
 $ npm test
-```
 
-> start
-
-```shell
+# start
 $ npm start
-```
 
-> development
-
-```shell
+# development
 $ npm run start:dev
 ```

@@ -3,7 +3,7 @@ import { Product } from './entities/product.js';
 import { Admin } from './entities/admin.js';
 import { Order } from './entities/order.js';
 import { Validation } from './validation.js';
-import { CartIsEmptyError } from './customErrors.js';
+import { CartIsEmptyError, NotFoundError } from './customErrors.js';
 
 let products = [
   new Product('Fresh Avocados', 6.5, 4),
@@ -15,14 +15,16 @@ let products = [
 
 function main() {
   valid();
-  invalid();
+  errors();
+
+  console.log();
 }
 
 function valid() {
   console.log('\n!---------- All products 🌽 ----------!');
   console.log(products);
 
-  console.log('\n!---------- Admin create product 🧅 ----------!');
+  console.log('\n\n!---------- Admin create product 🧅 ----------!');
   let admin = new Admin('Admin', 10000);
 
   const newProduct = admin.createProduct('Onion', 1.5, 8);
@@ -38,7 +40,7 @@ function valid() {
   console.log(user.getCart());
 
   const productTitle = products[0].title;
-  console.log(`\n!---------- Remove '${productTitle}' 🛒 ----------!`);
+  console.log(`\n\n!---------- Remove '${productTitle}' 🛒 ----------!`);
 
   user.getCart().removeProduct(productTitle);
   console.log(user.getCart());
@@ -47,7 +49,7 @@ function valid() {
   user.getCart().checkout(user, products);
   showAll(user);
 
-  console.log('\n!---------- Checkout 2 🛒 ----------!');
+  console.log('\n\n!---------- Checkout 2 🛒 ----------!');
   addToCart(products.slice(-2), user);
   user.getCart().checkout(user, products);
   showAll(user);
@@ -79,7 +81,10 @@ function showAll(user) {
   console.log(user);
 }
 
-function invalid() {
+function errors() {
+  const defUser = new User('Default', 100);
+  const defCart = defUser.getCart();
+
   console.log(
     `
 !---------       Errors ⛔️      ---------!
@@ -89,50 +94,77 @@ function invalid() {
   try {
     new User('Abc12 23', 78);
   } catch (error) {
-    console.error(error.message);
+    showError(error);
   }
 
-  console.log('\n!--------- Positive number validation 🔢 ---------!\n');
+  console.log('\n\n!--------- Positive number validation 🔢 ---------!');
   try {
     new User('User', -78);
   } catch (error) {
-    console.error(error.message);
+    showError(error);
   }
 
-  console.log('\n!--------- Date validation 📆 ---------!\n');
+  console.log('\n\n!--------- Date validation 📆 ---------!');
   try {
     new Order([new Product('test', 50, 2)], 100, '13-11a-2021');
   } catch (error) {
-    console.error(error.message);
+    showError(error);
   }
 
-  console.log('\n!--------- intInRange validation ⛰ ---------!\n');
+  console.log('\n\n!--------- intInRange validation ⛰ ---------!');
   try {
     Validation.intInRange(12, 13, 19);
   } catch (error) {
-    console.error(error.message);
+    showError(error);
   }
 
-  console.log('\n!--------- User balance 🛒 ---------!\n');
+  console.log('\n\n!--------- User balance 🛒 ---------!');
   try {
     const user = new User('test', 2);
     user.getCart().addProduct(products[0]);
     user.getCart().checkout(user, products);
   } catch (error) {
     if (error instanceof RangeError) {
-      console.error(error.message);
+      showError(error);
     }
   }
 
-  console.log('\n!--------- Cart is empty 🛒 ---------!\n');
+  console.log('\n\n!--------- Cart is empty 🛒 ---------!');
   try {
-    const user = new User('test', 100);
-    user.getCart().checkout(user, products);
+    defCart.checkout(defUser, products);
   } catch (error) {
     if (error instanceof CartIsEmptyError) {
-      console.error(error.message);
+      showError(error);
     }
   }
+
+  console.log('\n\n!--------- Product has not been found 🛒 ---------!');
+  try {
+    defCart.addProduct(new Product('Avocado', 6.5, 1));
+    defCart.checkout(defUser, products);
+  } catch (error) {
+    if (error instanceof NotFoundError) {
+      showError(error);
+    }
+  } finally {
+    defCart.withdraw();
+  }
+
+  console.log('\n\n!--------- Product amount 🛒 ---------!');
+  try {
+    defCart.addProduct(new Product('Fresh Avocados', 6.5, 13));
+    defCart.checkout(defUser, products);
+  } catch (error) {
+    if (error instanceof RangeError) {
+      showError(error);
+    }
+  } finally {
+    defCart.withdraw();
+  }
+}
+
+function showError(error) {
+  console.error(error.message + '\nError name: ' + error.name);
 }
 
 main();

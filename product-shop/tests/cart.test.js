@@ -87,7 +87,7 @@ test('test checkout (product has not been found)', () => {
   defCart.withdraw();
 });
 
-test('test checkout (product quantity)', () => {
+test('test checkout (product amount)', () => {
   defCart.addProduct(new Product('Fresh Avocados', 3, 12));
 
   expect(() => {

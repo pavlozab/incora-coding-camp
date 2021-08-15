@@ -1,4 +1,4 @@
-import {CartIsEmptyError, NotFoundError} from './../customErrors.js';
+import { CartIsEmptyError, NotFoundError } from '../customErrors.js';
 
 export class Cart {
   constructor() {
@@ -38,7 +38,7 @@ export class Cart {
       throw new RangeError('User balance is too low');
     }
 
-    // step 2: check product quantity
+    // step 2: check product amount
     for (let product of this.products) {
       const indexOfProduct = allProducts.findIndex(
         prod => prod.title === product.title,
@@ -71,10 +71,9 @@ export class Cart {
 
   getTotalPrice() {
     return this.products.reduce(
-        (accumulator, curentProduct) =>
-            accumulator + curentProduct.getTotalPrice(),
-        0,
+      (accumulator, curentProduct) =>
+        accumulator + curentProduct.getTotalPrice(),
+      0,
     );
   }
-
 }
